@@ -1,0 +1,1 @@
+if false then 0 else succ (pred (succ 0))
