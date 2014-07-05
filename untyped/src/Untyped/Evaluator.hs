@@ -38,7 +38,6 @@ eval1 (TermApp (TermAbs _ t12) v2)
 eval1 (TermApp t1 t2)
   | isValue t1 = liftM2 TermApp (return t1) (eval1  t2)
   | otherwise  = liftM2 TermApp (eval1  t1) (return t2)
-
 eval1 _ = Nothing
 
 eval :: Term -> Term
