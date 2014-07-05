@@ -1,5 +1,6 @@
 module Untyped.Evaluator where
 
+import Control.Monad
 import Untyped.Syntax
 
 -- Variable Shifting and Substitution
@@ -33,17 +34,11 @@ isValue _             = False
 
 eval1 :: Term -> Maybe Term
 eval1 (TermApp (TermAbs _ t12) v2)
-  | isValue v2 = Just $ substTopTerm v2 t12
-  | otherwise  = Nothing
+  | isValue v2 = return $ substTopTerm v2 t12
 eval1 (TermApp t1 t2)
-  | isValue t1 = let t2' = eval1 t2
-                 in  case t2' of
-                     Just t2'' -> Just $ TermApp t1 t2''
-                     Nothing   -> Nothing
-  | otherwise = let t1' = eval1 t1
-                in  case t1' of
-                      Just t1'' -> Just $ TermApp t1'' t2
-                      Nothing   -> Nothing
+  | isValue t1 = liftM2 TermApp (return t1) (eval1  t2)
+  | otherwise  = liftM2 TermApp (eval1  t1) (return t2)
+
 eval1 _ = Nothing
 
 eval :: Term -> Term
