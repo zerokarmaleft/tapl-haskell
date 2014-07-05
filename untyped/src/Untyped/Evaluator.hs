@@ -7,7 +7,7 @@ import Untyped.Syntax
 --
 
 shiftTerm :: Int -> Term -> Term
-shiftTerm d t = walk 0 t
+shiftTerm d = walk 0
   where walk c (TermVar x n)
           | n >= c             = TermVar (x+d) (n+d)
           | otherwise          = TermVar (x+1) n
@@ -15,7 +15,7 @@ shiftTerm d t = walk 0 t
         walk c (TermApp t1 t2) = TermApp (walk c t1) (walk c t2)
 
 substTerm :: Int -> Term -> Term -> Term
-substTerm j s t = walk 0 t
+substTerm j s = walk 0
   where walk c (TermVar x n)
           | n == j+c           = shiftTerm c s
           | otherwise          = TermVar x n
