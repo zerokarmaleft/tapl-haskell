@@ -20,6 +20,6 @@ test the compiler/REPL.
 
 ## License
 
-Copyright © 2012 Edward Cho.
+Copyright © 2014 Edward Cho.
 
 Distributed under the MIT License.
