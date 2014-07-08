@@ -5,8 +5,8 @@ type Context = [String]
 mkContext :: Context
 mkContext = []
 
-bindVarName :: Context -> String -> Context
-bindVarName ctx x = x : ctx
+bindVarName :: String -> Context -> Context
+bindVarName = (:)
 
 getVarName :: Context -> Int -> String
 getVarName ctx n =
@@ -18,8 +18,8 @@ getVarName ctx n =
 freshVarName :: Context -> String -> (Context, String)
 freshVarName ctx x =
   let x' = getFreshName ctx x
-  in  (bindVarName ctx x', x')
-  
+  in  (bindVarName x' ctx, x')
+
 getFreshName :: Context -> String -> String
 getFreshName [] x = x
 getFreshName ctx@(b:bs) x
