@@ -10,8 +10,8 @@ data Term = TermVar Int Int
 showTerm :: Context -> Term -> String
 showTerm ctx t =
   case t of
-    TermVar _ n   -> 
-      getVarName ctx n
+    TermVar n _   ->
+      getVarName n ctx
     TermAbs x t1  -> 
       let (ctx', x') = freshVarName ctx x
       in  "(lambda " ++ x' ++ "." ++ showTerm ctx' t1 ++ ")"

@@ -8,8 +8,8 @@ mkContext = []
 bindVarName :: String -> Context -> Context
 bindVarName = (:)
 
-getVarName :: Context -> Int -> String
-getVarName ctx n =
+getVarName :: Int -> Context -> String
+getVarName n ctx =
   if length ctx > n
      then ctx !! n
      else error $ ("Requested index " ++ show n
