@@ -22,3 +22,19 @@ pair   = lambda f. lambda s. lambda b. b f s
 first  = lambda p. p true
 second = lambda p. p false
 ```
+
+* `ex8.u`, `ex9.u`, `ex10.u` - Church Numerals where
+
+```
+0 = lambda s. lambda z. z
+1 = lambda s. lambda z. s z
+2 = lambda s. lambda z. s (s z)
+3 = lambda s. lambda z. s (s (s z))
+etc.
+```
+
+and
+
+```
+succ = lambda n. lambda s. lambda z. s (n s z)
+```

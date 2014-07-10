@@ -1,0 +1,1 @@
+((lambda n. (lambda s. (lambda z. s (n s z)))) (lambda s. (lambda z. z)))

@@ -1,0 +1,1 @@
+(lambda s. (lambda z. z))
