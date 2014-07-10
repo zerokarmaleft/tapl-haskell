@@ -1,6 +1,6 @@
 # tapl-haskell
 
-Implementations from studing Types and Programming Languages.
+Implementations from studying Types and Programming Languages.
 
 ## Building
 
