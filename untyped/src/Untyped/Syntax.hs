@@ -13,7 +13,7 @@ showTerm ctx t =
     TermVar n _   ->
       getVarName n ctx
     TermAbs x t1  -> 
-      let (ctx', x') = freshVarName ctx x
+      let (x', ctx') = freshVarName x ctx
       in  "(lambda " ++ x' ++ "." ++ showTerm ctx' t1 ++ ")"
     TermApp t1 t2 -> 
       "(" ++ showTerm ctx t1 ++ " " ++ showTerm ctx t2 ++ ")"

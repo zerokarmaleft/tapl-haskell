@@ -9,22 +9,19 @@ bindVarName :: String -> Context -> Context
 bindVarName = (:)
 
 getVarName :: Int -> Context -> String
-getVarName n ctx =
-  if length ctx > n
-     then ctx !! n
-     else error $ ("Requested index " ++ show n
-                   ++ " of Context of length " ++ show (length ctx))
-                   
-freshVarName :: Context -> String -> (Context, String)
-freshVarName ctx x =
-  let x' = getFreshName ctx x
-  in  (bindVarName x' ctx, x')
+getVarName n ctx
+  | length ctx > n = ctx !! n
+  | otherwise      = error $ ("Requested index " ++ show n
+                              ++ " of Context of length " ++ show (length ctx))
 
-getFreshName :: Context -> String -> String
-getFreshName [] x = x
-getFreshName ctx@(b:bs) x
-  | x == b    = getFreshName ctx (x ++ "'")
-  | otherwise = getFreshName bs x
+freshVarName :: String -> Context -> (String, Context)
+freshVarName x ctx =
+  let x' = mkFreshVarName x ctx
+  in  (x', bindVarName x' ctx)
 
-ctx1 :: Context
-ctx1 = ["b", "a", "z", "y", "x"]
+mkFreshVarName :: String -> Context -> String
+mkFreshVarName x [] = x
+mkFreshVarName x ctx@(b:bs)
+  | x == b    = mkFreshVarName (x ++ "'") ctx
+  | otherwise = mkFreshVarName x bs
+
