@@ -1,0 +1,1 @@
+if 0 then succ 0 else 0
