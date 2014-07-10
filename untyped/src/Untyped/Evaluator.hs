@@ -16,8 +16,8 @@ shiftTerm :: Int -> Term -> Term
 --         walk c (TermApp t1 t2) = TermApp (walk c t1) (walk c t2)
 shiftTerm d t = trace ("shiftTerm[" ++ show d ++ "]: \t\t" ++ show t) $ walk 0 t
   where walk c (TermVar x n)
-          | n >= c             = trace ("shiftWalk[" ++ show (c,d) ++ "]: \t" ++ show (TermVar x n)) $ TermVar (x+d) (n+d)
-          | otherwise          = trace ("shiftWalk[" ++ show (c,d) ++ "]: \t" ++ show (TermVar x n)) $ TermVar x    (n+d)
+          | x >= c             = trace ("shiftWalk[" ++ show (c,d) ++ "]: \t" ++ show (TermVar x n)) $ TermVar (x+d) (n+d)
+          | otherwise          = trace ("shiftWalk[" ++ show (c,d) ++ "]: \t" ++ show (TermVar x n)) $ TermVar x     (n+d)
         walk c (TermAbs x t1)  = trace ("shiftWalk[" ++ show (c,d) ++ "]: \t" ++ show (TermAbs x t1)) $ TermAbs x (walk (c+1) t1)
         walk c (TermApp t1 t2) = trace ("shiftWalk[" ++ show (c,d) ++ "]: \t" ++ show (TermApp t1 t2)) $ TermApp (walk c t1) (walk c t2)
 
@@ -28,9 +28,9 @@ substTerm :: Int -> Term -> Term -> Term
 --           | otherwise          = TermVar x n
 --         walk c (TermAbs x t1)  = TermAbs x (walk (c+1) t1)
 --         walk c (TermApp t1 t2) = TermApp (walk c t1) (walk c t2)
-substTerm j s t = trace ("substTerm[" ++ show j ++ "]: \t\t" ++ show (s,t)) $ walk 1 t
+substTerm j s t = trace ("substTerm[" ++ show j ++ "]: \t\t" ++ show (s,t)) $ walk 0 t
   where walk c (TermVar x n)
-          | n == j+c           = trace ("substWalk[" ++ show (c,j) ++ "]: \t" ++ show (TermVar x n)) $ shiftTerm c s
+          | x == j+c           = trace ("substWalk[" ++ show (c,j) ++ "]: \t" ++ show (TermVar x n)) $ s
           | otherwise          = trace ("substWalk[" ++ show (c,j) ++ "]: \t" ++ show (TermVar x n)) $ TermVar x n
         walk c (TermAbs x t1)  = trace ("substWalk[" ++ show (c,j) ++ "]: \t" ++ show (TermAbs x t1)) $ TermAbs x (walk (c+1) t1)
         walk c (TermApp t1 t2) = trace ("substWalk[" ++ show (c,j) ++ "]: \t" ++ show (TermApp t1 t2)) $ TermApp (walk c t1) (walk c t2)

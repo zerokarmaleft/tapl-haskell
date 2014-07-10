@@ -15,6 +15,6 @@ main =
          do let ctx = mkContext
             parseTree <- fmap (runParser parseTerm ctx "untyped") (readFile sourceFile)
             case parseTree of
-              Right expr -> putStrLn $ (show parseTree) ++ "\n=> " ++ (show . eval) expr
+              Right expr -> putStrLn $ "Evaluating " ++ (show parseTree) ++ "\n=> " ++ (show . eval) expr
               Left err   -> putStrLn $ show err
        _ -> putStrLn "Usage: untyped <sourceFile>"
