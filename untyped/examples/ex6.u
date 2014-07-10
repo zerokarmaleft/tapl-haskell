@@ -1,0 +1,1 @@
+((lambda p. p (lambda t. (lambda f. t))) ((lambda f. (lambda s. (lambda b. b f s))) (lambda t. (lambda f. t)) (lambda t. (lambda f. f))))
