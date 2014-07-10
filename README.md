@@ -18,6 +18,10 @@ $ cabal build
 Examples of the implementation language can be found in `/examples` to
 test the compiler/REPL.
 
+```
+$ cabal run examples/ex1.u
+```
+
 ## License
 
 Copyright © 2014 Edward Cho.
