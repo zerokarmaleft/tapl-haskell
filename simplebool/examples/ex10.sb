@@ -1,0 +1,1 @@
+(lambda x:Bool. if x then true else false) (lambda x:Bool. x)

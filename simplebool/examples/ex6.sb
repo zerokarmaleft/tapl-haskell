@@ -1,0 +1,1 @@
+(lambda x:Bool->Bool. x true) (lambda x:Bool. x)
