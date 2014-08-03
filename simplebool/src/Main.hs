@@ -14,7 +14,8 @@ main =
      case args of
        [sourceFile] ->
          do let ctx = mkContext
-            parseTree <- fmap (parse parseTerm "simplebool") $ readFile sourceFile
+            parseTree <- fmap (runParser parseTerm ctx "simplebool")
+                              (readFile sourceFile)
             case parseTree of
               Right expr -> 
                 case typeOf ctx expr of

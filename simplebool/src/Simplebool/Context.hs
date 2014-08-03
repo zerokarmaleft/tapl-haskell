@@ -1,17 +1,20 @@
 module Simplebool.Context where
 
 import Control.Monad
-import Data.List
 
 data Type = TypeBool
           | TypeArrow Type Type
-          deriving (Eq, Show)
+          deriving (Eq)
 
 type Context = [(String, Binding)]
 
 data Binding = NameBinding
              | VarBinding Type
-             deriving (Show)
+             deriving (Eq, Show)
+
+instance Show Type where
+  show TypeBool              = "Bool"
+  show (TypeArrow tyT1 tyT2) = show tyT1 ++ "->" ++ show tyT2
 
 mkContext :: Context
 mkContext = []
@@ -33,4 +36,13 @@ getName n ctx = liftM fst $ getIndex n ctx
 getType :: Int -> Context -> Maybe Binding
 getType n ctx = liftM snd $ getIndex n ctx
 
-freshVarName = undefined
+freshVarName :: String -> Context -> (String, Context)
+freshVarName x ctx =
+  let x' = mkFreshVarName x ctx
+  in  (x', addBinding (x', NameBinding) ctx)
+
+mkFreshVarName :: String -> Context -> String
+mkFreshVarName x [] = x
+mkFreshVarName x ctx@(b:bs)
+  | x == fst b = mkFreshVarName (x ++ "'") ctx
+  | otherwise  = mkFreshVarName x bs
