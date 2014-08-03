@@ -22,12 +22,16 @@ library
                        Simplebool.Syntax
                        Simplebool.Typechecker
   build-depends:       base >=4.7 && <4.8
+                     , parsec >=3.1.5
+                     , transformers >=0.4.1.0
   hs-source-dirs:      src
   default-language:    Haskell2010
+  ghc-options:         -Wall -fno-warn-unused-do-bind
 
 executable simplebool
   main-is:             Main.hs
   build-depends:       base >=4.7 && <4.8
                      , parsec >=3.1.5
+                     , transformers >=0.4.1.0
   hs-source-dirs:      src
   default-language:    Haskell2010
