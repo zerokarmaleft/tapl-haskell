@@ -19,7 +19,7 @@ showTerm ctx t =
       "(if " ++ showTerm ctx t1 ++ " then " ++ showTerm ctx t2 ++ " else " ++ showTerm ctx t3 ++ ")"
     TermVar n _      ->
       case getName n ctx of
-        Just x -> x
+        Just x  -> x
         Nothing -> ""
     TermAbs x tyX t1 ->
       let (x', ctx') = freshVarName x ctx
