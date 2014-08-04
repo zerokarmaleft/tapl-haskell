@@ -4,8 +4,8 @@ import Arith.Evaluator
 import Arith.Parser
 import Arith.Syntax
 
-data Type = Bool
-          | Nat
+data Type = TypeBool
+          | TypeNat
           deriving (Eq, Show)
 
 data TypeError = IfGuardNotBool
