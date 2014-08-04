@@ -1,6 +1,8 @@
 # tapl-haskell
 
-Implementations from studying Types and Programming Languages.
+Implementations from studying
+[Types and Programming Languages](http://www.cis.upenn.edu/~bcpierce/tapl/)
+by Benjamin C. Pierce.
 
 ## Building
 
@@ -15,8 +17,8 @@ $ cabal install --only-dependencies
 $ cabal build
 ```
 
-Examples of the implementation language can be found in `/examples` to
-test the compiler/REPL.
+Examples of the implementation language can be found in `examples/`
+for each project subdirectory to test the compiler/REPL.
 
 ```
 $ cabal run examples/ex1.u
