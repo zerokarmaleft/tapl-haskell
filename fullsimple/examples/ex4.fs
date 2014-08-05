@@ -1,0 +1,1 @@
+(lambda x:Nat. if zero? x then succ x else x) (succ 0)
