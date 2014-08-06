@@ -10,6 +10,8 @@ described below.
 * first-order types
 * boolean primitives
 * natural number primitives (Church/Peano-encoded natural numbers)
+* TODO string primitives
+* TODO float primitives
 * TODO uninterpreted base types
 * TODO unit type
 * TODO sequencing and wildcards
