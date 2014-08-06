@@ -33,6 +33,15 @@ typeOf ctx (TermPred t1)
 typeOf ctx (TermIsZero t1)
   | typeOf ctx t1 == Right TypeNat  = Right TypeBool
   | otherwise                       = Left IsZeroArgNatTypeExpected
+typeOf ctx (TermPair t1 t2)         =
+  let tyT1 = typeOf ctx t1
+      tyT2 = typeOf ctx t2
+  in  case tyT1 of
+        Right tyT1' ->
+          case tyT2 of
+            Right tyT2'  -> Right $ TypePair tyT1' tyT2'
+            Left tyErrT2 -> Left tyErrT2
+        Left tyErrT1 -> Left tyErrT1
 typeOf ctx (TermVar x _)            =
   case getType x ctx of
     Just (VarBinding tyT) -> Right tyT

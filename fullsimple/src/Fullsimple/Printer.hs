@@ -23,6 +23,7 @@ printTerm ctx t@(TermPred t1)    =
   let n = foldNat t
   in  fromMaybe ("(pred " ++ printTerm ctx t1 ++ ")") (liftM show n)
 printTerm ctx (TermIsZero t)     = "(zero? " ++ printTerm ctx t ++ ")"
+printTerm ctx (TermPair t1 t2)   = "{" ++ printTerm ctx t1 ++ ", " ++ printTerm ctx t2 ++ "}"
 printTerm ctx (TermVar n _)      = fromMaybe "<undefined var>" (getName n ctx)
 printTerm ctx (TermAbs x tyX t1) = 
   let (x', ctx') = freshVarName x ctx

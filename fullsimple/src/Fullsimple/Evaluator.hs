@@ -22,6 +22,7 @@ substTerm j s = walk 0
         walk c (TermSucc t1)       = TermSucc (walk c t1)
         walk c (TermPred t1)       = TermPred (walk c t1)
         walk c (TermIsZero t1)     = TermIsZero (walk c t1)
+        walk c (TermPair t1 t2)    = TermPair (walk c t1) (walk c t2)
         walk c (TermVar x n)
           | x == j+c               = s
           | otherwise              = TermVar x n
@@ -40,31 +41,39 @@ substTopTerm s t = shiftTerm (-1) (substTerm 0 (shiftTerm 1 s) t)
 --
 
 isValue :: Term -> Bool
-isValue (TermAbs _ _ _) = True
-isValue TermTrue        = True
-isValue TermFalse       = True
-isValue TermZero        = True
-isValue (TermSucc t)    = isValue t
-isValue (TermPred t)    = isValue t
-isValue _               = False
+isValue (TermAbs _ _ _)          = True
+isValue TermTrue                 = True
+isValue TermFalse                = True
+isValue TermZero                 = True
+isValue (TermSucc (TermPred t1)) = False
+isValue (TermSucc t1)            = isValue t1
+isValue (TermPred (TermSucc t1)) = False
+isValue (TermPred t1)            = isValue t1
+isValue (TermPair t1 t2)         = isValue t1 && isValue t2
+isValue _                        = False
 
 eval1 :: Term -> Maybe Term
-eval1 (TermIf TermTrue  t2 _ )         = return t2
-eval1 (TermIf TermFalse _  t3)         = return t3
-eval1 (TermIf t1        t2 t3)         = liftM (\t1' -> TermIf t1' t2 t3) (eval1 t1)
-eval1 (TermSucc t1)                    = liftM TermSucc (eval1 t1)
-eval1 (TermPred TermZero)              = return TermZero
-eval1 (TermPred (TermSucc t1))         = return t1
-eval1 (TermPred t1)                    = liftM TermPred (eval1 t1)
-eval1 (TermIsZero TermZero)            = return TermTrue
-eval1 (TermIsZero (TermSucc TermZero)) = return TermFalse
-eval1 (TermIsZero t)                   = liftM TermIsZero (eval1 t)
+eval1 (TermIf TermTrue  t2 _ )               = return t2
+eval1 (TermIf TermFalse _  t3)               = return t3
+eval1 (TermIf t1        t2 t3)               = liftM (\t1' -> TermIf t1' t2 t3) (eval1 t1)
+eval1 (TermSucc t1)                          = liftM TermSucc (eval1 t1)
+eval1 (TermPred TermZero)                    = return TermZero
+eval1 (TermPred (TermSucc t1))               = return t1
+eval1 (TermPred t1)                          = liftM TermPred (eval1 t1)
+eval1 (TermIsZero TermZero)                  = return TermTrue
+eval1 (TermIsZero (TermSucc TermZero))       = return TermFalse
+eval1 (TermPair t1 t2)
+  | isValue t1 && (not (isValue t2))         = liftM2 TermPair (return t1) (eval1  t2)
+  | isValue t2 && (not (isValue t1))         = liftM2 TermPair (eval1  t1) (return t2)
+  | (not (isValue t1)) && (not (isValue t2)) = liftM2 TermPair (eval1 t1) (eval1 t2)
+  | otherwise                                = Nothing
+eval1 (TermIsZero t)                         = liftM TermIsZero (eval1 t)
 eval1 (TermApp (TermAbs _ _ t12) v2)
-  | isValue v2                         = return $ substTopTerm v2 t12
+  | isValue v2                               = return $ substTopTerm v2 t12
 eval1 (TermApp t1 t2)
-  | isValue t1                         = liftM2 TermApp (return t1) (eval1  t2)
-  | otherwise                          = liftM2 TermApp (eval1  t1) (return t2)
-eval1 _                                = Nothing
+  | isValue t1                               = liftM2 TermApp (return t1) (eval1  t2)
+  | otherwise                                = liftM2 TermApp (eval1  t1) (return t2)
+eval1 _                                      = Nothing
 
 eval :: Term -> Term
 eval t =

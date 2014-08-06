@@ -54,8 +54,11 @@ fullsimpleDef =
 lexer :: P.GenTokenParser String u Identity
 lexer = P.makeTokenParser fullsimpleDef
 
+comma :: ParsecT String u Identity String
+comma      = P.comma      lexer
+
 colon :: ParsecT String u Identity String
-colon = P.colon lexer
+colon      = P.colon      lexer
 
 dot :: ParsecT String u Identity String
 dot        = P.dot        lexer
@@ -65,6 +68,9 @@ identifier = P.identifier lexer
 
 parens :: ParsecT String u Identity a -> ParsecT String u Identity a
 parens     = P.parens     lexer
+
+braces :: ParsecT String u Identity a -> ParsecT String u Identity a
+braces     = P.braces     lexer
 
 reservedOp :: String -> ParsecT String u Identity ()
 reservedOp = P.reservedOp lexer
@@ -112,6 +118,18 @@ parseIsZero =
      n <- parseTerm
      traceM "Parsing <is-zero>"
      return $ TermIsZero n
+
+parseProjections :: Parser (Term, Term)
+parseProjections =
+  do t1 <- parseTerm
+     comma
+     t2 <- parseTerm
+     return (t1, t2)
+
+parsePair :: Parser Term
+parsePair =
+  do (t1, t2) <- braces parseProjections
+     return $ TermPair t1 t2
 
 getVarIndex :: (Monad m, Eq a) => a -> [(a,b)] -> m Int
 getVarIndex var ctx =
@@ -174,6 +192,7 @@ parseTerm =
            parseSucc   <|>
            parsePred   <|>
            parseIsZero <|>
+           parsePair   <|>
            parseAbs    <|>
            parseVar    <|>
            parens parseTerm)

@@ -9,6 +9,7 @@ data Term = TermTrue
           | TermSucc   Term
           | TermPred   Term
           | TermIsZero Term
+          | TermPair   Term Term
           | TermVar    Int Int
           | TermAbs    String Type Term
           | TermApp    Term Term
