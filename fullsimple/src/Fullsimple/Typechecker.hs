@@ -5,12 +5,12 @@ import Fullsimple.Terms
 import Fullsimple.Types
 
 data TypeError = IfArmsTypeMismatch
-               | IfGuardNotBool
-               | SuccArgNotNat
-               | PredArgNotNat
-               | IsZeroArgNotNat
+               | IfGuardBoolTypeExpected
+               | SuccArgNatTypeExpected
+               | PredArgNatTypeExpected
+               | IsZeroArgNatTypeExpected
                | ArrowParamTypeMismatch
-               | AppArrowTypeExpected
+               | AppOpArrowTypeExpected
                | VarTypeErrorWat
                deriving (Eq, Show)
 
@@ -22,17 +22,17 @@ typeOf ctx (TermIf t1 t2 t3)
       if typeOf ctx t2 == typeOf ctx t3
           then typeOf ctx t2
           else Left IfArmsTypeMismatch
-  | otherwise                       = Left IfGuardNotBool
+  | otherwise                       = Left IfGuardBoolTypeExpected
 typeOf _ TermZero                   = Right TypeNat
 typeOf ctx (TermSucc t1)
   | typeOf ctx t1 == Right TypeNat  = Right TypeNat
-  | otherwise                       = Left SuccArgNotNat
+  | otherwise                       = Left SuccArgNatTypeExpected
 typeOf ctx (TermPred t1)
   | typeOf ctx t1 == Right TypeNat  = Right TypeNat
-  | otherwise                       = Left PredArgNotNat
+  | otherwise                       = Left PredArgNatTypeExpected
 typeOf ctx (TermIsZero t1)
   | typeOf ctx t1 == Right TypeNat  = Right TypeBool
-  | otherwise                       = Left IsZeroArgNotNat
+  | otherwise                       = Left IsZeroArgNatTypeExpected
 typeOf ctx (TermVar x _)            =
   case getType x ctx of
     Just (VarBinding tyT) -> Right tyT
@@ -49,10 +49,8 @@ typeOf ctx (TermApp t1 t2)          =
   in case tyT1 of
        Right (TypeArrow tyT11 tyT12) ->
          case tyT2 of
-           Right tyT2' -> if tyT2' == tyT11
-                            then Right tyT12
-                            else Left ArrowParamTypeMismatch
-           Left tyErr -> Left tyErr
-       Left tyErr -> Left tyErr
-       _          -> Left AppArrowTypeExpected
-
+           Right tyT2'  -> if tyT2' == tyT11
+                              then Right tyT12
+                              else Left ArrowParamTypeMismatch
+           Left tyErrT2 -> Left tyErrT2
+       _ -> Left AppOpArrowTypeExpected
