@@ -28,6 +28,7 @@ fullsimpleDef =
                                       , "else"
                                       , "true"
                                       , "false"
+                                      , "0"
                                       , "succ"
                                       , "pred"
                                       , "zero?"
@@ -40,6 +41,7 @@ fullsimpleDef =
                                       , "else"
                                       , "true"
                                       , "false"
+                                      , "0"
                                       , "succ"
                                       , "pred"
                                       , "zero?"
@@ -88,7 +90,7 @@ parseIf =
      return $ TermIf predicate consequent antecedent
      
 parseZero :: Parser Term
-parseZero = traceM "Parsing <0>" >> string "0" >> return TermZero
+parseZero = traceM "Parsing <0>" >> reserved "0" >> return TermZero
 
 parseSucc :: Parser Term
 parseSucc =
@@ -176,3 +178,4 @@ parseTerm =
            parseVar    <|>
            parens parseTerm)
           (traceM "Parsing <lambda-app>" >> return TermApp)
+

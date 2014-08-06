@@ -54,3 +54,4 @@ typeOf ctx (TermApp t1 t2)          =
                               else Left ArrowParamTypeMismatch
            Left tyErrT2 -> Left tyErrT2
        _ -> Left AppOpArrowTypeExpected
+

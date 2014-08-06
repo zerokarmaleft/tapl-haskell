@@ -28,3 +28,4 @@ printTerm ctx (TermAbs x tyX t1) =
   let (x', ctx') = freshVarName x ctx
   in  "(lambda " ++ x' ++ ":" ++ show tyX ++ "." ++ printTerm ctx' t1 ++ ")"
 printTerm ctx (TermApp t1 t2)    = "(" ++ printTerm ctx t1 ++ " " ++ printTerm ctx t2 ++ ")"
+
