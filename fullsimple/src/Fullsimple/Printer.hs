@@ -15,7 +15,7 @@ printTerm :: Context -> Term -> String
 printTerm ctx TermTrue           = "true"
 printTerm ctx TermFalse          = "false"
 printTerm ctx (TermIf t1 t2 t3)  = "(if " ++ printTerm ctx t1 ++ " then " ++ printTerm ctx t2 ++ " else " ++ printTerm ctx t3 ++ ")"
-printTerm ctx TermZero = "0"
+printTerm ctx TermZero           = "0"
 printTerm ctx t@(TermSucc t1)    =
   let n = foldNat t
   in  fromMaybe ("(succ " ++ printTerm ctx t1 ++ ")") (liftM show n)
