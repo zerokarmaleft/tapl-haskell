@@ -5,7 +5,7 @@ import Debug.Trace
 import           Data.Functor.Identity
 import           Data.List
 import           Fullsimple.Context
-import           Fullsimple.Syntax
+import           Fullsimple.Terms
 import           Fullsimple.Types
 import           Text.Parsec
 import qualified Text.Parsec.Token as P

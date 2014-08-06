@@ -19,7 +19,8 @@ library
   exposed-modules:     Fullsimple.Context
                        Fullsimple.Evaluator
                        Fullsimple.Parser
-                       Fullsimple.Syntax
+                       Fullsimple.Printer
+                       Fullsimple.Terms
                        Fullsimple.Typechecker
                        Fullsimple.Types
   build-depends:       base >=4.7 && <4.8

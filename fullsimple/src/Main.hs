@@ -3,7 +3,7 @@ module Main where
 import Fullsimple.Context
 import Fullsimple.Evaluator
 import Fullsimple.Parser
-import Fullsimple.Syntax
+import Fullsimple.Printer
 import Fullsimple.Typechecker
 import System.Environment
 import Text.Parsec
@@ -21,7 +21,7 @@ main =
                 case typeOf ctx expr of
                   Right ty ->
                     do putStrLn $ "Evaluating (" ++ (show expr) ++ ")"
-                       putStrLn $ "=> " ++ (showTerm ctx . eval) expr
+                       putStrLn $ "=> " ++ (printTerm ctx . eval) expr
                   Left err ->
                     putStrLn $ "Type Error in (" ++ show expr ++ "): " ++ show err
               Left err -> putStrLn $ "Parsing Error: " ++ show err 

@@ -1,7 +1,7 @@
 module Fullsimple.Typechecker where
 
 import Fullsimple.Context
-import Fullsimple.Syntax
+import Fullsimple.Terms
 import Fullsimple.Types
 
 data TypeError = IfArmsTypeMismatch

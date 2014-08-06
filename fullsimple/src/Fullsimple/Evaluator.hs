@@ -1,7 +1,7 @@
 module Fullsimple.Evaluator where
 
 import Control.Monad
-import Fullsimple.Syntax
+import Fullsimple.Terms
 
 -- Variable Shifting and Substitution
 --
