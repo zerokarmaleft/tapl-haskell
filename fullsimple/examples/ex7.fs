@@ -1,0 +1,1 @@
+(if true then {0, true} else {succ 0, false}).2
