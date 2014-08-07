@@ -17,9 +17,10 @@ described below.
 * TODO sequencing and wildcards
 * TODO ascription (type annotation)
 * TODO let bindings
-* pairs
-* TODO tuples
-* TODO records
+* product types
+  * pairs
+  * tuples
+  * TODO records
 * TODO binary sum types
 * TODO variants
 * TODO recursion
