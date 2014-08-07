@@ -21,38 +21,27 @@ fullsimpleDef =
                     , Token.nestedComments  = True
                     , Token.identStart      = letter
                     , Token.identLetter     = alphaNum
-                    , Token.opStart         = letter
-                    , Token.opLetter        = alphaNum
-                    , Token.reservedOpNames = [ "lambda"
-                                          , "if"
-                                          , "then"
-                                          , "else"
-                                          , "true"
-                                          , "false"
-                                          , "0"
-                                          , "succ"
-                                          , "pred"
-                                          , "zero?"
-                                          , ".1"
-                                          , ".2"
-                                          , "Bool"
-                                          , "Nat"
-                                          ]
+                    , Token.opStart         = oneOf ".-"
+                    , Token.opLetter        = digit <|> oneOf ">"
+                    , Token.reservedOpNames = [ ".1"
+                                              , ".2"
+                                              , "->"
+                                              ]
                     , Token.reservedNames   = [ "lambda"
-                                          , "if"
-                                          , "then"
-                                          , "else"
-                                          , "true"
-                                          , "false"
-                                          , "0"
-                                          , "succ"
-                                          , "pred"
-                                          , "zero?"
-                                          , ".1"
-                                          , ".2"
-                                          , "Bool"
-                                          , "Nat"
-                                          ]
+                                              , "if"
+                                              , "then"
+                                              , "else"
+                                              , "true"
+                                              , "false"
+                                              , "0"
+                                              , "succ"
+                                              , "pred"
+                                              , "zero?"
+                                              , ".1"
+                                              , ".2"
+                                              , "Bool"
+                                              , "Nat"
+                                              ]
                     , Token.caseSensitive   = True
                     }
 
@@ -175,30 +164,33 @@ parseTypeBool = reserved "Bool" >> traceM "Parsing <type-bool>" >> return TypeBo
 parseTypeNat :: Parser Type
 parseTypeNat = reserved "Nat" >> traceM "Parsing <type-nat>" >> return TypeNat
 
-parseTypeArrow :: Parser Type
+parseTypeArrow :: Parser (Type -> Type -> Type)
 parseTypeArrow =
-  do tyT1 <- parseTypeBool <|> parseTypeNat
-     many space
-     string "->"
-     many space
-     tyT2 <- parseType
-     traceM "Parsing <type-arrow>"
-     return $ TypeArrow tyT1 tyT2
+  do traceM "Parsing <type-arrow>"
+     reservedOp "->"
+     return TypeArrow
 
 parseType :: Parser Type
-parseType =
-  try parseTypeArrow <|> parseTypeBool <|> parseTypeNat <|> parens parseType
+parseType = parseTypeExpr
+
+parseNonArrowType :: Parser Type
+parseNonArrowType = parseTypeBool <|> parseTypeNat <|> parens parseType
 
 parseTypeAnnotation :: Parser Type
 parseTypeAnnotation =
   do colon
      parseType
 
+typeOps = [ [Expr.Infix parseTypeArrow Expr.AssocLeft] ]
+
+parseTypeExpr :: Parser Type
+parseTypeExpr = Expr.buildExpressionParser typeOps parseNonArrowType
+
 parseTerm :: Parser Term
 parseTerm = chainl1 parseTermExpr (traceM "Parsing <lambda-app>" >> return TermApp)
 
 parseNonAppTerm :: Parser Term
-parseNonAppTerm = (parseTrue    <|>
+parseNonAppTerm = (parseTrue   <|>
                    parseFalse  <|>
                    parseIf     <|>
                    parseZero   <|>
