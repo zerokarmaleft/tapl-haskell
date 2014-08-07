@@ -70,6 +70,9 @@ reservedOp = Token.reservedOp lexer
 reserved :: String -> ParsecT String u Identity ()
 reserved   = Token.reserved   lexer
 
+-- Term Expressions
+--
+
 parseTrue :: Parser Term
 parseTrue  = traceM "Parsing <true>" >> reserved "true"  >> return TermTrue
 
@@ -154,6 +157,30 @@ parseAbs =
      traceM "Parsing <lambda>"
      return $ TermAbs var tyVar term
 
+parseTerm :: Parser Term
+parseTerm = chainl1 parseTermExpr (traceM "Parsing <lambda-app>" >> return TermApp)
+
+parseNonAppTerm :: Parser Term
+parseNonAppTerm = (parseTrue    <|>
+                   parseFalse   <|>
+                   parseIf      <|>
+                   parseZero    <|>
+                   parseSucc    <|>
+                   parsePred    <|>
+                   parseIsZero  <|>
+                   parseProduct <|>
+                   parseAbs     <|>
+                   parseVar     <|>
+                   parens parseTerm)
+
+termOps = [ [Expr.Postfix parseProj] ]
+
+parseTermExpr :: Parser Term
+parseTermExpr = Expr.buildExpressionParser termOps parseNonAppTerm
+
+-- Type Expressions
+--
+
 parseTypeBool :: Parser Type
 parseTypeBool = reserved "Bool" >> traceM "Parsing <type-bool>" >> return TypeBool
 
@@ -183,23 +210,3 @@ typeOps = [ [Expr.Infix parseTypeArrow Expr.AssocLeft] ]
 parseTypeExpr :: Parser Type
 parseTypeExpr = Expr.buildExpressionParser typeOps parseNonArrowType
 
-parseTerm :: Parser Term
-parseTerm = chainl1 parseTermExpr (traceM "Parsing <lambda-app>" >> return TermApp)
-
-parseNonAppTerm :: Parser Term
-parseNonAppTerm = (parseTrue    <|>
-                   parseFalse   <|>
-                   parseIf      <|>
-                   parseZero    <|>
-                   parseSucc    <|>
-                   parsePred    <|>
-                   parseIsZero  <|>
-                   parseProduct <|>
-                   parseAbs     <|>
-                   parseVar     <|>
-                   parens parseTerm)
-
-termOps = [ [Expr.Postfix parseProj] ]
-
-parseTermExpr :: Parser Term
-parseTermExpr = Expr.buildExpressionParser termOps parseNonAppTerm
