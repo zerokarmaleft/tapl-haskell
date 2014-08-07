@@ -55,27 +55,27 @@ isValue (TermProduct ts)         = (and . map isValue) ts
 isValue _                        = False
 
 eval1 :: Term -> Maybe Term
-eval1 (TermIf TermTrue  t2 _ )               = return t2
-eval1 (TermIf TermFalse _  t3)               = return t3
-eval1 (TermIf t1        t2 t3)               = liftM (\t1' -> TermIf t1' t2 t3) (eval1 t1)
-eval1 (TermSucc t1)                          = liftM TermSucc (eval1 t1)
-eval1 (TermPred TermZero)                    = return TermZero
-eval1 (TermPred (TermSucc t1))               = return t1
-eval1 (TermPred t1)                          = liftM TermPred (eval1 t1)
-eval1 (TermIsZero TermZero)                  = return TermTrue
-eval1 (TermIsZero (TermSucc TermZero))       = return TermFalse
+eval1 (TermIf TermTrue  t2 _ )         = return t2
+eval1 (TermIf TermFalse _  t3)         = return t3
+eval1 (TermIf t1        t2 t3)         = liftM (\t1' -> TermIf t1' t2 t3) (eval1 t1)
+eval1 (TermSucc t1)                    = liftM TermSucc (eval1 t1)
+eval1 (TermPred TermZero)              = return TermZero
+eval1 (TermPred (TermSucc t1))         = return t1
+eval1 (TermPred t1)                    = liftM TermPred (eval1 t1)
+eval1 (TermIsZero TermZero)            = return TermTrue
+eval1 (TermIsZero (TermSucc TermZero)) = return TermFalse
 eval1 t@(TermProduct ts)
-  | isValue t = Nothing
-  | otherwise = liftM TermProduct (mapM (\t -> if isValue t then return t else eval1 t) ts)
-eval1 (TermProj x (TermProduct ts))          = return $ ts !! x
-eval1 (TermProj x t1)                        = liftM2 TermProj (return x) (eval1 t1)
-eval1 (TermIsZero t)                         = liftM TermIsZero (eval1 t)
+  | isValue t                          = Nothing
+  | otherwise                          = liftM TermProduct (mapM (\t -> if isValue t then return t else eval1 t) ts)
+eval1 (TermProj x (TermProduct ts))    = return $ ts !! x
+eval1 (TermProj x t1)                  = liftM2 TermProj (return x) (eval1 t1)
+eval1 (TermIsZero t)                   = liftM TermIsZero (eval1 t)
 eval1 (TermApp (TermAbs _ _ t12) v2)
-  | isValue v2                               = return $ substTopTerm v2 t12
+  | isValue v2                         = return $ substTopTerm v2 t12
 eval1 (TermApp t1 t2)
-  | isValue t1                               = liftM2 TermApp (return t1) (eval1  t2)
-  | otherwise                                = liftM2 TermApp (eval1  t1) (return t2)
-eval1 _                                      = Nothing
+  | isValue t1                         = liftM2 TermApp (return t1) (eval1  t2)
+  | otherwise                          = liftM2 TermApp (eval1  t1) (return t2)
+eval1 _                                = Nothing
 
 eval :: Term -> Term
 eval t =
