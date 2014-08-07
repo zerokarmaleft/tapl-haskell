@@ -21,12 +21,9 @@ fullsimpleDef =
                     , Token.nestedComments  = True
                     , Token.identStart      = letter
                     , Token.identLetter     = alphaNum
-                    , Token.opStart         = oneOf ".-"
-                    , Token.opLetter        = digit <|> oneOf ">"
-                    , Token.reservedOpNames = [ ".1"
-                                              , ".2"
-                                              , "->"
-                                              ]
+                    , Token.opStart         = oneOf "-"
+                    , Token.opLetter        = oneOf ">"
+                    , Token.reservedOpNames = [ "->" ]
                     , Token.reservedNames   = [ "lambda"
                                               , "if"
                                               , "then"
@@ -37,8 +34,6 @@ fullsimpleDef =
                                               , "succ"
                                               , "pred"
                                               , "zero?"
-                                              , ".1"
-                                              , ".2"
                                               , "Bool"
                                               , "Nat"
                                               ]
@@ -56,6 +51,9 @@ colon      = Token.colon      lexer
 
 dot :: ParsecT String u Identity String
 dot        = Token.dot        lexer
+
+commaSep :: ParsecT String u Identity a -> ParsecT String u Identity [a]
+commaSep   = Token.commaSep   lexer
 
 identifier :: ParsecT String u Identity String
 identifier = Token.identifier lexer
@@ -113,23 +111,21 @@ parseIsZero =
      traceM "Parsing <is-zero>"
      return $ TermIsZero n
 
-parseProjections :: Parser (Term, Term)
-parseProjections =
-  do t1 <- parseTerm
-     comma
-     t2 <- parseTerm
-     return (t1, t2)
+parseProjections :: Parser [Term]
+parseProjections = commaSep parseTerm
 
-parsePair :: Parser Term
-parsePair =
-  do (t1, t2) <- braces parseProjections
-     return $ TermPair t1 t2
+parseProduct :: Parser Term
+parseProduct =
+  do ts <- braces parseProjections
+     traceM "Parsing <product-proj>"
+     return $ TermProduct ts
 
-parseProj1 :: Parser (Term -> Term)
-parseProj1 = reservedOp ".1" >> return TermProj1
-
-parseProj2 :: Parser (Term -> Term)
-parseProj2 = reservedOp ".2" >> return TermProj2
+parseProj :: Parser (Term -> Term)
+parseProj =
+  do dot
+     j <- many1 digit
+     traceM "Parsing <proj>"
+     return $ TermProj ((read j) - 1)
 
 getVarIndex :: (Monad m, Eq a) => a -> [(a,b)] -> m Int
 getVarIndex var ctx =
@@ -165,10 +161,7 @@ parseTypeNat :: Parser Type
 parseTypeNat = reserved "Nat" >> traceM "Parsing <type-nat>" >> return TypeNat
 
 parseTypeArrow :: Parser (Type -> Type -> Type)
-parseTypeArrow =
-  do traceM "Parsing <type-arrow>"
-     reservedOp "->"
-     return TypeArrow
+parseTypeArrow = reservedOp "->" >> traceM "Parsing <type-arrow>" >> return TypeArrow
 
 parseType :: Parser Type
 parseType = parseTypeExpr
@@ -177,9 +170,7 @@ parseNonArrowType :: Parser Type
 parseNonArrowType = parseTypeBool <|> parseTypeNat <|> parens parseType
 
 parseTypeAnnotation :: Parser Type
-parseTypeAnnotation =
-  do colon
-     parseType
+parseTypeAnnotation = colon >> parseType
 
 typeOps = [ [Expr.Infix parseTypeArrow Expr.AssocLeft] ]
 
@@ -190,21 +181,19 @@ parseTerm :: Parser Term
 parseTerm = chainl1 parseTermExpr (traceM "Parsing <lambda-app>" >> return TermApp)
 
 parseNonAppTerm :: Parser Term
-parseNonAppTerm = (parseTrue   <|>
-                   parseFalse  <|>
-                   parseIf     <|>
-                   parseZero   <|>
-                   parseSucc   <|>
-                   parsePred   <|>
-                   parseIsZero <|>
-                   parsePair   <|>
-                   parseAbs    <|>
-                   parseVar    <|>
+parseNonAppTerm = (parseTrue    <|>
+                   parseFalse   <|>
+                   parseIf      <|>
+                   parseZero    <|>
+                   parseSucc    <|>
+                   parsePred    <|>
+                   parseIsZero  <|>
+                   parseProduct <|>
+                   parseAbs     <|>
+                   parseVar     <|>
                    parens parseTerm)
 
-termOps = [ [Expr.Postfix parseProj1]
-          , [Expr.Postfix parseProj2]
-          ]
+termOps = [ [Expr.Postfix parseProj] ]
 
 parseTermExpr :: Parser Term
 parseTermExpr = Expr.buildExpressionParser termOps parseNonAppTerm

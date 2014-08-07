@@ -1,6 +1,7 @@
 module Fullsimple.Evaluator where
 
 import Control.Monad
+import Data.List
 import Fullsimple.Terms
 
 -- Variable Shifting and Substitution
@@ -22,9 +23,8 @@ substTerm j s = walk 0
         walk c (TermSucc t1)       = TermSucc (walk c t1)
         walk c (TermPred t1)       = TermPred (walk c t1)
         walk c (TermIsZero t1)     = TermIsZero (walk c t1)
-        walk c (TermPair t1 t2)    = TermPair (walk c t1) (walk c t2)
-        walk c (TermProj1 t1)      = TermProj1 (walk c t1)
-        walk c (TermProj2 t1)      = TermProj2 (walk c t1)
+        walk c (TermProduct ts)    = TermProduct (map (walk c) ts)
+        walk c (TermProj x t1)     = TermProj x (walk c t1)
         walk c (TermVar x n)
           | x == j+c               = s
           | otherwise              = TermVar x n
@@ -51,7 +51,7 @@ isValue (TermSucc (TermPred t1)) = False
 isValue (TermSucc t1)            = isValue t1
 isValue (TermPred (TermSucc t1)) = False
 isValue (TermPred t1)            = isValue t1
-isValue (TermPair t1 t2)         = isValue t1 && isValue t2
+isValue (TermProduct ts)         = (and . map isValue) ts
 isValue _                        = False
 
 eval1 :: Term -> Maybe Term
@@ -64,15 +64,11 @@ eval1 (TermPred (TermSucc t1))               = return t1
 eval1 (TermPred t1)                          = liftM TermPred (eval1 t1)
 eval1 (TermIsZero TermZero)                  = return TermTrue
 eval1 (TermIsZero (TermSucc TermZero))       = return TermFalse
-eval1 (TermPair t1 t2)
-  | isValue t1 && (not (isValue t2))         = liftM2 TermPair (return t1) (eval1  t2)
-  | isValue t2 && (not (isValue t1))         = liftM2 TermPair (eval1  t1) (return t2)
-  | (not (isValue t1)) && (not (isValue t2)) = liftM2 TermPair (eval1 t1) (eval1 t2)
-  | otherwise                                = Nothing
-eval1 (TermProj1 (TermPair t1 t2))           = return t1
-eval1 (TermProj1 t1)                         = liftM TermProj1 (eval1 t1)
-eval1 (TermProj2 (TermPair t1 t2))           = return t2
-eval1 (TermProj2 t1)                         = liftM TermProj2 (eval1 t1)
+eval1 t@(TermProduct ts)
+  | isValue t = Nothing
+  | otherwise = liftM TermProduct (mapM (\t -> if isValue t then return t else eval1 t) ts)
+eval1 (TermProj x (TermProduct ts))          = return $ ts !! x
+eval1 (TermProj x t1)                        = liftM2 TermProj (return x) (eval1 t1)
 eval1 (TermIsZero t)                         = liftM TermIsZero (eval1 t)
 eval1 (TermApp (TermAbs _ _ t12) v2)
   | isValue v2                               = return $ substTopTerm v2 t12

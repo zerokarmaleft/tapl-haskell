@@ -1,5 +1,6 @@
 module Fullsimple.Typechecker where
 
+import Control.Monad
 import Fullsimple.Context
 import Fullsimple.Terms
 import Fullsimple.Types
@@ -34,27 +35,15 @@ typeOf ctx (TermPred t1)
 typeOf ctx (TermIsZero t1)
   | typeOf ctx t1 == Right TypeNat  = Right TypeBool
   | otherwise                       = Left IsZeroArgNatTypeExpected
-typeOf ctx (TermPair t1 t2)         =
-  let tyT1 = typeOf ctx t1
-      tyT2 = typeOf ctx t2
-  in  case tyT1 of
-        Right tyT1' ->
-          case tyT2 of
-            Right tyT2'  -> Right $ TypeProduct tyT1' tyT2'
-            Left tyErrT2 -> Left tyErrT2
-        Left tyErrT1 -> Left tyErrT1
-typeOf ctx (TermProj1 t1)           =
-  let tyT1 = typeOf ctx t1
-  in  case tyT1 of
-        Right (TypeProduct tyT11 tyT12) -> Right tyT11
-        Right _                         -> Left ProjProductTypeExpected
-        Left tyErrT1                    -> Left tyErrT1
-typeOf ctx (TermProj2 t1)           =
-  let tyT1 = typeOf ctx t1
-  in  case tyT1 of
-        Right (TypeProduct tyT11 tyT12) -> Right tyT12
-        Right _                         -> Left ProjProductTypeExpected
-        Left tyErrT1                    -> Left tyErrT1
+typeOf ctx (TermProduct ts)         =
+  case mapM (typeOf ctx) ts of
+    Right tyTs   -> Right $ TypeProduct tyTs
+    Left tyErrTs -> Left tyErrTs
+typeOf ctx (TermProj x t1)          =
+  case typeOf ctx t1 of
+    Right (TypeProduct tys) -> Right (tys !! x)
+    Right _                 -> Left ProjProductTypeExpected
+    Left tyErr              -> Left tyErr
 typeOf ctx (TermVar x _)            =
   case getType x ctx of
     Just (VarBinding tyT) -> Right tyT

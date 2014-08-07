@@ -1,1 +1,1 @@
-(if true then {0, true} else {succ 0, false}).2
+(if false then {0, true} else {succ 0, false}).2
