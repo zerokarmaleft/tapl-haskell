@@ -8,75 +8,79 @@ import           Fullsimple.Context
 import           Fullsimple.Terms
 import           Fullsimple.Types
 import           Text.Parsec
-import qualified Text.Parsec.Token as P
+import qualified Text.Parsec.Token as Token
 
 type Parser a = ParsecT String Context Identity a
 
-fullsimpleDef :: P.LanguageDef st
+fullsimpleDef :: Token.LanguageDef st
 fullsimpleDef =
-  P.LanguageDef { P.commentStart    = ""
-                , P.commentEnd      = ""
-                , P.commentLine     = ""
-                , P.nestedComments  = True
-                , P.identStart      = letter
-                , P.identLetter     = alphaNum
-                , P.opStart         = letter
-                , P.opLetter        = alphaNum
-                , P.reservedOpNames = [ "lambda"
-                                      , "if"
-                                      , "then"
-                                      , "else"
-                                      , "true"
-                                      , "false"
-                                      , "0"
-                                      , "succ"
-                                      , "pred"
-                                      , "zero?"
-                                      , "Bool"
-                                      , "Nat"
-                                      ]
-                , P.reservedNames   = [ "lambda"
-                                      , "if"
-                                      , "then"
-                                      , "else"
-                                      , "true"
-                                      , "false"
-                                      , "0"
-                                      , "succ"
-                                      , "pred"
-                                      , "zero?"
-                                      , "Bool"
-                                      , "Nat"
-                                      ]
-                , P.caseSensitive   = True
-                }
+  Token.LanguageDef { Token.commentStart    = ""
+                    , Token.commentEnd      = ""
+                    , Token.commentLine     = ""
+                    , Token.nestedComments  = True
+                    , Token.identStart      = letter
+                    , Token.identLetter     = alphaNum
+                    , Token.opStart         = letter
+                    , Token.opLetter        = alphaNum
+                    , Token.reservedOpNames = [ "lambda"
+                                          , "if"
+                                          , "then"
+                                          , "else"
+                                          , "true"
+                                          , "false"
+                                          , "0"
+                                          , "succ"
+                                          , "pred"
+                                          , "zero?"
+                                          , ".1"
+                                          , ".2"
+                                          , "Bool"
+                                          , "Nat"
+                                          ]
+                    , Token.reservedNames   = [ "lambda"
+                                          , "if"
+                                          , "then"
+                                          , "else"
+                                          , "true"
+                                          , "false"
+                                          , "0"
+                                          , "succ"
+                                          , "pred"
+                                          , "zero?"
+                                          , ".1"
+                                          , ".2"
+                                          , "Bool"
+                                          , "Nat"
+                                          ]
+                    , Token.caseSensitive   = True
+                    }
 
-lexer :: P.GenTokenParser String u Identity
-lexer = P.makeTokenParser fullsimpleDef
+lexer :: Token.GenTokenParser String u Identity
+lexer = Token.makeTokenParser fullsimpleDef
 
 comma :: ParsecT String u Identity String
-comma      = P.comma      lexer
+comma      = Token.comma      lexer
 
 colon :: ParsecT String u Identity String
-colon      = P.colon      lexer
+colon      = Token.colon      lexer
 
 dot :: ParsecT String u Identity String
-dot        = P.dot        lexer
+dot        = Token.dot        lexer
 
 identifier :: ParsecT String u Identity String
-identifier = P.identifier lexer
+identifier = Token.identifier lexer
 
 parens :: ParsecT String u Identity a -> ParsecT String u Identity a
-parens     = P.parens     lexer
+parens     = Token.parens     lexer
 
 braces :: ParsecT String u Identity a -> ParsecT String u Identity a
-braces     = P.braces     lexer
+braces     = Token.braces     lexer
 
 reservedOp :: String -> ParsecT String u Identity ()
-reservedOp = P.reservedOp lexer
+reservedOp = Token.reservedOp lexer
 
 reserved :: String -> ParsecT String u Identity ()
-reserved   = P.reserved   lexer
+reserved   = Token.reserved   lexer
 
 parseTrue :: Parser Term
 parseTrue  = traceM "Parsing <true>" >> reserved "true"  >> return TermTrue
