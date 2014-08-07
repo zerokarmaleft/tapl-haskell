@@ -10,6 +10,8 @@ data Term = TermTrue
           | TermPred   Term
           | TermIsZero Term
           | TermPair   Term Term
+          | TermProj1  Term
+          | TermProj2  Term
           | TermVar    Int Int
           | TermAbs    String Type Term
           | TermApp    Term Term

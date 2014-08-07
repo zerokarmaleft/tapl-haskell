@@ -8,6 +8,7 @@ import           Fullsimple.Context
 import           Fullsimple.Terms
 import           Fullsimple.Types
 import           Text.Parsec
+import qualified Text.Parsec.Expr  as Expr
 import qualified Text.Parsec.Token as Token
 
 type Parser a = ParsecT String Context Identity a
@@ -135,6 +136,12 @@ parsePair =
   do (t1, t2) <- braces parseProjections
      return $ TermPair t1 t2
 
+parseProj1 :: Parser (Term -> Term)
+parseProj1 = reservedOp ".1" >> return TermProj1
+
+parseProj2 :: Parser (Term -> Term)
+parseProj2 = reservedOp ".2" >> return TermProj2
+
 getVarIndex :: (Monad m, Eq a) => a -> [(a,b)] -> m Int
 getVarIndex var ctx =
   case findIndex ((== var) . fst) ctx of
@@ -188,17 +195,24 @@ parseTypeAnnotation =
      parseType
 
 parseTerm :: Parser Term
-parseTerm =
-  chainl1 (parseTrue   <|>
-           parseFalse  <|>
-           parseIf     <|>
-           parseZero   <|>
-           parseSucc   <|>
-           parsePred   <|>
-           parseIsZero <|>
-           parsePair   <|>
-           parseAbs    <|>
-           parseVar    <|>
-           parens parseTerm)
-          (traceM "Parsing <lambda-app>" >> return TermApp)
+parseTerm = chainl1 parseTermExpr (traceM "Parsing <lambda-app>" >> return TermApp)
 
+parseNonAppTerm :: Parser Term
+parseNonAppTerm = (parseTrue    <|>
+                   parseFalse  <|>
+                   parseIf     <|>
+                   parseZero   <|>
+                   parseSucc   <|>
+                   parsePred   <|>
+                   parseIsZero <|>
+                   parsePair   <|>
+                   parseAbs    <|>
+                   parseVar    <|>
+                   parens parseTerm)
+
+termOps = [ [Expr.Postfix parseProj1]
+          , [Expr.Postfix parseProj2]
+          ]
+
+parseTermExpr :: Parser Term
+parseTermExpr = Expr.buildExpressionParser termOps parseNonAppTerm

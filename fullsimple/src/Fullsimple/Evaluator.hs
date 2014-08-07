@@ -23,6 +23,8 @@ substTerm j s = walk 0
         walk c (TermPred t1)       = TermPred (walk c t1)
         walk c (TermIsZero t1)     = TermIsZero (walk c t1)
         walk c (TermPair t1 t2)    = TermPair (walk c t1) (walk c t2)
+        walk c (TermProj1 t1)      = TermProj1 (walk c t1)
+        walk c (TermProj2 t1)      = TermProj2 (walk c t1)
         walk c (TermVar x n)
           | x == j+c               = s
           | otherwise              = TermVar x n
@@ -67,6 +69,10 @@ eval1 (TermPair t1 t2)
   | isValue t2 && (not (isValue t1))         = liftM2 TermPair (eval1  t1) (return t2)
   | (not (isValue t1)) && (not (isValue t2)) = liftM2 TermPair (eval1 t1) (eval1 t2)
   | otherwise                                = Nothing
+eval1 (TermProj1 (TermPair t1 t2))           = return t1
+eval1 (TermProj1 t1)                         = liftM TermProj1 (eval1 t1)
+eval1 (TermProj2 (TermPair t1 t2))           = return t2
+eval1 (TermProj2 t1)                         = liftM TermProj2 (eval1 t1)
 eval1 (TermIsZero t)                         = liftM TermIsZero (eval1 t)
 eval1 (TermApp (TermAbs _ _ t12) v2)
   | isValue v2                               = return $ substTopTerm v2 t12
