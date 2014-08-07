@@ -160,6 +160,12 @@ parseTypeBool = reserved "Bool" >> traceM "Parsing <type-bool>" >> return TypeBo
 parseTypeNat :: Parser Type
 parseTypeNat = reserved "Nat" >> traceM "Parsing <type-nat>" >> return TypeNat
 
+parseTypeProduct :: Parser Type
+parseTypeProduct =
+  do ts <- braces (commaSep parseTypeExpr)
+     traceM "Parsing <type-product>"
+     return $ TypeProduct ts
+
 parseTypeArrow :: Parser (Type -> Type -> Type)
 parseTypeArrow = reservedOp "->" >> traceM "Parsing <type-arrow>" >> return TypeArrow
 
@@ -167,7 +173,7 @@ parseType :: Parser Type
 parseType = parseTypeExpr
 
 parseNonArrowType :: Parser Type
-parseNonArrowType = parseTypeBool <|> parseTypeNat <|> parens parseType
+parseNonArrowType = parseTypeBool <|> parseTypeNat <|> parseTypeProduct <|> parens parseType
 
 parseTypeAnnotation :: Parser Type
 parseTypeAnnotation = colon >> parseType
