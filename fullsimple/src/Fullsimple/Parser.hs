@@ -47,6 +47,9 @@ lexer = Token.makeTokenParser fullsimpleDef
 comma :: ParsecT String u Identity String
 comma      = Token.comma      lexer
 
+semi :: ParsecT String u Identity String
+semi       = Token.semi       lexer
+
 colon :: ParsecT String u Identity String
 colon      = Token.colon      lexer
 
@@ -161,6 +164,18 @@ parseAbs =
      traceM "Parsing <lambda>"
      return $ TermAbs var tyVar term
 
+applySequence :: Context -> Term -> Term -> Term
+applySequence ctx t1 t2@(TermAbs var tyVar _) = TermApp (TermAbs freshVar TypeUnit t2) t1
+  where freshVar = fst $ freshVarName var (addBinding (var, VarBinding tyVar) ctx)
+applySequence _ t1 t2                         = TermApp (TermAbs "x" TypeUnit t2) t1
+
+parseSequence :: Parser (Term -> Term -> Term)
+parseSequence =
+  do semi
+     ctx <- getState
+     traceM "Parsing <sequence>"
+     return $ applySequence ctx
+
 parseTerm :: Parser Term
 parseTerm = chainl1 parseTermExpr (traceM "Parsing <lambda-app>" >> return TermApp)
 
@@ -178,7 +193,8 @@ parseNonAppTerm = (parseUnit    <|>
                    parseVar     <|>
                    parens parseTerm)
 
-termOps = [ [Expr.Postfix parseProj] ]
+termOps = [ [Expr.Postfix parseProj]
+          , [Expr.Infix   parseSequence Expr.AssocLeft] ]
 
 parseTermExpr :: Parser Term
 parseTermExpr = Expr.buildExpressionParser termOps parseNonAppTerm

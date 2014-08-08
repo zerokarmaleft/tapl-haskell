@@ -7,24 +7,25 @@ described below.
 
 `fullsimple` augments the pure untyped lambda calculus with
 
-* first-order types
-* boolean primitives
-* natural number primitives (Church/Peano-encoded natural numbers)
-* TODO string primitives
-* TODO float primitives
-* TODO uninterpreted base types
-* unit type
-* TODO sequencing and wildcards
-* TODO ascription (type annotation)
-* TODO let bindings
-* product types
-  * pairs
-  * tuples
-  * TODO records
-* TODO binary sum types
-* TODO variants
-* TODO recursion
-* TODO lists
+- [x] first-order types
+- [x]  boolean primitives
+- [x] natural number primitives (Church/Peano-encoded natural numbers)
+- [ ] string primitives
+- [ ] float primitives
+- [ ] uninterpreted base types
+- [x]  unit type
+- [x] sequencing
+- [ ] wildcards
+- [ ] ascription (type annotation)
+- [ ] let bindings
+- [x] product types
+  - [x] pairs
+  - [x] tuples
+  - [ ] records
+- [x] binary sum types
+- [ ] variants
+- [ ] recursion
+- [ ] lists
 
 ## Examples
 
