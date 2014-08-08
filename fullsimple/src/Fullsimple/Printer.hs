@@ -13,6 +13,7 @@ foldNat (TermPred n) = liftM2 (+) (return (-1)) (foldNat n)
 foldNat _            = Nothing
 
 printTerm :: Context -> Term -> String
+printTerm ctx TermUnit           = "unit"
 printTerm ctx TermTrue           = "true"
 printTerm ctx TermFalse          = "false"
 printTerm ctx (TermIf t1 t2 t3)  = "(if " ++ printTerm ctx t1 ++ " then " ++ printTerm ctx t2 ++ " else " ++ printTerm ctx t3 ++ ")"

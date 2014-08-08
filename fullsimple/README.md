@@ -13,7 +13,7 @@ described below.
 * TODO string primitives
 * TODO float primitives
 * TODO uninterpreted base types
-* TODO unit type
+* unit type
 * TODO sequencing and wildcards
 * TODO ascription (type annotation)
 * TODO let bindings

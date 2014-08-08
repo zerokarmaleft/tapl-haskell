@@ -17,6 +17,7 @@ data TypeError = IfArmsTypeMismatch
                deriving (Eq, Show)
 
 typeOf :: Context -> Term -> Either TypeError Type
+typeOf _ TermUnit                   = Right TypeUnit
 typeOf _ TermTrue                   = Right TypeBool
 typeOf _ TermFalse                  = Right TypeBool
 typeOf ctx (TermIf t1 t2 t3)

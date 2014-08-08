@@ -2,7 +2,8 @@ module Fullsimple.Terms where
 
 import Fullsimple.Types
 
-data Term = TermTrue
+data Term = TermUnit
+          | TermTrue
           | TermFalse
           | TermIf      Term Term Term
           | TermZero

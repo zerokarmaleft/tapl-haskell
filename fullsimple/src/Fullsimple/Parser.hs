@@ -24,16 +24,17 @@ fullsimpleDef =
                     , Token.opStart         = oneOf "-"
                     , Token.opLetter        = oneOf ">"
                     , Token.reservedOpNames = [ "->" ]
-                    , Token.reservedNames   = [ "lambda"
+                    , Token.reservedNames   = [ "unit"
+                                              , "true"
+                                              , "false"
                                               , "if"
                                               , "then"
                                               , "else"
-                                              , "true"
-                                              , "false"
                                               , "0"
                                               , "succ"
                                               , "pred"
                                               , "zero?"
+                                              , "lambda"
                                               , "Bool"
                                               , "Nat"
                                               ]
@@ -73,11 +74,14 @@ reserved   = Token.reserved   lexer
 -- Term Expressions
 --
 
+parseUnit :: Parser Term
+parseUnit = reserved "unit" >> traceM "Parsing <unit>" >> return TermUnit
+
 parseTrue :: Parser Term
-parseTrue  = traceM "Parsing <true>" >> reserved "true"  >> return TermTrue
+parseTrue  = reserved "true" >> traceM "Parsing <true>" >> return TermTrue
 
 parseFalse :: Parser Term
-parseFalse = traceM "Parsing <false>" >> reserved "false" >> return TermFalse
+parseFalse = reserved "false" >> traceM "Parsing <false>" >> return TermFalse
 
 parseIf :: Parser Term
 parseIf =
@@ -91,7 +95,7 @@ parseIf =
      return $ TermIf predicate consequent antecedent
      
 parseZero :: Parser Term
-parseZero = traceM "Parsing <0>" >> reserved "0" >> return TermZero
+parseZero = reserved "0" >> traceM "Parsing <0>" >> return TermZero
 
 parseSucc :: Parser Term
 parseSucc =
@@ -161,7 +165,8 @@ parseTerm :: Parser Term
 parseTerm = chainl1 parseTermExpr (traceM "Parsing <lambda-app>" >> return TermApp)
 
 parseNonAppTerm :: Parser Term
-parseNonAppTerm = (parseTrue    <|>
+parseNonAppTerm = (parseUnit    <|>
+                   parseTrue    <|>
                    parseFalse   <|>
                    parseIf      <|>
                    parseZero    <|>
@@ -180,6 +185,9 @@ parseTermExpr = Expr.buildExpressionParser termOps parseNonAppTerm
 
 -- Type Expressions
 --
+
+parseTypeUnit :: Parser Type
+parseTypeUnit = reserved "Unit" >> traceM "Parsing <type-unit>" >> return TypeUnit
 
 parseTypeBool :: Parser Type
 parseTypeBool = reserved "Bool" >> traceM "Parsing <type-bool>" >> return TypeBool
@@ -200,7 +208,12 @@ parseType :: Parser Type
 parseType = parseTypeExpr
 
 parseNonArrowType :: Parser Type
-parseNonArrowType = parseTypeBool <|> parseTypeNat <|> parseTypeProduct <|> parens parseType
+parseNonArrowType =
+  parseTypeUnit    <|>
+  parseTypeBool    <|>
+  parseTypeNat     <|>
+  parseTypeProduct <|>
+  parens parseType
 
 parseTypeAnnotation :: Parser Type
 parseTypeAnnotation = colon >> parseType

@@ -31,6 +31,7 @@ substTerm j s = walk 0
         walk c (TermAbs x tyT1 t1) = TermAbs x tyT1 (walk (c+1) t1)
         walk c (TermApp t1 t2)     = TermApp (walk c t1) (walk c t2)
         walk _ t1
+          | t1 == TermUnit         = t1
           | t1 == TermTrue         = t1
           | t1 == TermFalse        = t1
           | t1 == TermZero         = t1
@@ -43,7 +44,7 @@ substTopTerm s t = shiftTerm (-1) (substTerm 0 (shiftTerm 1 s) t)
 --
 
 isValue :: Term -> Bool
-isValue (TermAbs _ _ _)          = True
+isValue TermUnit                 = True
 isValue TermTrue                 = True
 isValue TermFalse                = True
 isValue TermZero                 = True
@@ -52,6 +53,7 @@ isValue (TermSucc t1)            = isValue t1
 isValue (TermPred (TermSucc t1)) = False
 isValue (TermPred t1)            = isValue t1
 isValue (TermProduct ts)         = (and . map isValue) ts
+isValue (TermAbs _ _ _)          = True
 isValue _                        = False
 
 eval1 :: Term -> Maybe Term
