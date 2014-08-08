@@ -1,1 +1,1 @@
-(lambda x:{Bool,Nat}. x.1) {true, 0}
+(lambda x:{Bool,Nat}. x.3) {true, 0}

@@ -15,7 +15,7 @@ described below.
 - [ ] uninterpreted base types
 - [x]  unit type
 - [x] sequencing
-- [ ] wildcards
+- [x] wildcards
 - [ ] ascription (type annotation)
 - [ ] let bindings
 - [x] product types

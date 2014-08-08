@@ -25,6 +25,7 @@ fullsimpleDef =
                     , Token.opLetter        = oneOf ">"
                     , Token.reservedOpNames = [ "->" ]
                     , Token.reservedNames   = [ "unit"
+                                              , "_"
                                               , "true"
                                               , "false"
                                               , "if"
@@ -151,46 +152,52 @@ parseVar =
      traceM "Parsing <var>"
      return $ TermVar idx (length ctx)
 
-parseAbs :: Parser Term
-parseAbs =
-  do reservedOp "lambda" 
-     var   <- identifier 
+parseWildcardAbs :: Parser Term
+parseWildcardAbs =
+  do reservedOp "lambda"
+     reserved "_"
      tyVar <- parseTypeAnnotation
      dot
      ctx   <- getState
-     setState $ addBinding (var, VarBinding tyVar) ctx 
+     term  <- parseTerm
+     traceM "Parsing <wildcard-lambda>"
+     return $ TermAbs "_" tyVar term
+
+parseAbs :: Parser Term
+parseAbs =
+  do reservedOp "lambda"
+     var   <- identifier
+     tyVar <- parseTypeAnnotation
+     dot
+     ctx   <- getState
+     setState $ addBinding (var, VarBinding tyVar) ctx
      term  <- parseTerm
      setState ctx
      traceM "Parsing <lambda>"
      return $ TermAbs var tyVar term
-
-applySequence :: Context -> Term -> Term -> Term
-applySequence ctx t1 t2@(TermAbs var tyVar _) = TermApp (TermAbs freshVar TypeUnit t2) t1
-  where freshVar = fst $ freshVarName var (addBinding (var, VarBinding tyVar) ctx)
-applySequence _ t1 t2                         = TermApp (TermAbs "x" TypeUnit t2) t1
 
 parseSequence :: Parser (Term -> Term -> Term)
 parseSequence =
   do semi
      ctx <- getState
      traceM "Parsing <sequence>"
-     return $ applySequence ctx
+     return $ \t1 t2 -> TermApp (TermAbs "_" TypeUnit t2) t1
 
 parseTerm :: Parser Term
 parseTerm = chainl1 parseTermExpr (traceM "Parsing <lambda-app>" >> return TermApp)
 
 parseNonAppTerm :: Parser Term
-parseNonAppTerm = (parseUnit    <|>
-                   parseTrue    <|>
-                   parseFalse   <|>
-                   parseIf      <|>
-                   parseZero    <|>
-                   parseSucc    <|>
-                   parsePred    <|>
-                   parseIsZero  <|>
-                   parseProduct <|>
-                   parseAbs     <|>
-                   parseVar     <|>
+parseNonAppTerm = (parseUnit        <|>
+                   parseTrue        <|>
+                   parseFalse       <|>
+                   parseIf          <|>
+                   parseZero        <|>
+                   parseSucc        <|>
+                   parsePred        <|>
+                   parseIsZero      <|>
+                   parseProduct     <|>
+                   (try parseWildcardAbs <|> parseAbs) <|>
+                   parseVar         <|>
                    parens parseTerm)
 
 termOps = [ [Expr.Postfix parseProj]
