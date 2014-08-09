@@ -21,9 +21,11 @@ fullsimpleDef =
                     , Token.nestedComments  = True
                     , Token.identStart      = letter
                     , Token.identLetter     = alphaNum
-                    , Token.opStart         = oneOf "-"
-                    , Token.opLetter        = oneOf ">"
-                    , Token.reservedOpNames = [ "->" ]
+                    , Token.opStart         = oneOf "-a"
+                    , Token.opLetter        = oneOf ">s"
+                    , Token.reservedOpNames = [ "->"
+                                              , "as"
+                                              ]
                     , Token.reservedNames   = [ "unit"
                                               , "_"
                                               , "true"
@@ -80,6 +82,13 @@ reserved   = Token.reserved   lexer
 
 parseUnit :: Parser Term
 parseUnit = reserved "unit" >> traceM "Parsing <unit>" >> return TermUnit
+
+parseAscription :: Parser (Term  -> Term)
+parseAscription =
+  do reserved "as"
+     tyT <- parseType
+     traceM "Parsing <ascription>"
+     return $ (flip TermAscription) tyT
 
 parseTrue :: Parser Term
 parseTrue  = reserved "true" >> traceM "Parsing <true>" >> return TermTrue
@@ -200,8 +209,9 @@ parseNonAppTerm = (parseUnit        <|>
                    parseVar         <|>
                    parens parseTerm)
 
-termOps = [ [Expr.Postfix parseProj]
-          , [Expr.Infix   parseSequence Expr.AssocLeft] ]
+termOps = [ [Expr.Postfix parseAscription               ]
+          , [Expr.Postfix parseProj                     ]
+          , [Expr.Infix   parseSequence   Expr.AssocLeft] ]
 
 parseTermExpr :: Parser Term
 parseTermExpr = Expr.buildExpressionParser termOps parseNonAppTerm

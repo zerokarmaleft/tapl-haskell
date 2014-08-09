@@ -5,7 +5,8 @@ import Fullsimple.Context
 import Fullsimple.Terms
 import Fullsimple.Types
 
-data TypeError = IfArmsTypeMismatch
+data TypeError = AscribeTypeExpected Type
+               | IfArmsTypeMismatch
                | IfGuardBoolTypeExpected
                | SuccArgNatTypeExpected
                | PredArgNatTypeExpected
@@ -18,6 +19,9 @@ data TypeError = IfArmsTypeMismatch
 
 typeOf :: Context -> Term -> Either TypeError Type
 typeOf _ TermUnit                   = Right TypeUnit
+typeOf ctx (TermAscription t1 tyT1)
+  | typeOf ctx t1 == Right tyT1     = Right tyT1
+  | otherwise                       = Left $ AscribeTypeExpected tyT1
 typeOf _ TermTrue                   = Right TypeBool
 typeOf _ TermFalse                  = Right TypeBool
 typeOf ctx (TermIf t1 t2 t3)

@@ -16,7 +16,7 @@ described below.
 - [x]  unit type
 - [x] sequencing
 - [x] wildcards
-- [ ] ascription (type annotation)
+- [x] ascription (type annotation)
 - [ ] let bindings
 - [x] product types
   - [x] pairs

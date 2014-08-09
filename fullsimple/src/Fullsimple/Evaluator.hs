@@ -19,23 +19,24 @@ shiftTerm d = walk 0
 
 substTerm :: Int -> Term -> Term -> Term
 substTerm j s = walk 0
-  where walk c (TermIf t1 t2 t3)   = TermIf (walk c t1) (walk c t2) (walk c t3)
-        walk c (TermSucc t1)       = TermSucc (walk c t1)
-        walk c (TermPred t1)       = TermPred (walk c t1)
-        walk c (TermIsZero t1)     = TermIsZero (walk c t1)
-        walk c (TermProduct ts)    = TermProduct (map (walk c) ts)
-        walk c (TermProj x t1)     = TermProj x (walk c t1)
+  where walk c (TermAscription t1 tyT1) = TermAscription (walk c t1) tyT1
+        walk c (TermIf t1 t2 t3)        = TermIf (walk c t1) (walk c t2) (walk c t3)
+        walk c (TermSucc t1)            = TermSucc (walk c t1)
+        walk c (TermPred t1)            = TermPred (walk c t1)
+        walk c (TermIsZero t1)          = TermIsZero (walk c t1)
+        walk c (TermProduct ts)         = TermProduct (map (walk c) ts)
+        walk c (TermProj x t1)          = TermProj x (walk c t1)
         walk c (TermVar x n)
-          | x == j+c               = s
-          | otherwise              = TermVar x n
-        walk c (TermAbs x tyT1 t1) = TermAbs x tyT1 (walk (c+1) t1)
-        walk c (TermApp t1 t2)     = TermApp (walk c t1) (walk c t2)
+          | x == j+c                    =     s
+          | otherwise                   = TermVar x n
+        walk c (TermAbs x tyT1 t1)      = TermAbs x tyT1 (walk (c+1) t1)
+        walk c (TermApp t1 t2)          = TermApp (walk c t1) (walk c t2)
         walk _ t1
-          | t1 == TermUnit         = t1
-          | t1 == TermTrue         = t1
-          | t1 == TermFalse        = t1
-          | t1 == TermZero         = t1
-          | otherwise              = s
+          | t1 == TermUnit              = t1
+          | t1 == TermTrue              = t1
+          | t1 == TermFalse             = t1
+          | t1 == TermZero              = t1
+          | otherwise                   = s
 
 substTopTerm :: Term -> Term -> Term
 substTopTerm s t = shiftTerm (-1) (substTerm 0 (shiftTerm 1 s) t)
@@ -57,6 +58,7 @@ isValue (TermAbs _ _ _)          = True
 isValue _                        = False
 
 eval1 :: Term -> Maybe Term
+eval1 (TermAscription t1 tyT1)         = return t1
 eval1 (TermIf TermTrue  t2 _ )         = return t2
 eval1 (TermIf TermFalse _  t3)         = return t3
 eval1 (TermIf t1        t2 t3)         = liftM (\t1' -> TermIf t1' t2 t3) (eval1 t1)
