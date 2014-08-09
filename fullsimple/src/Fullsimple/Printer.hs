@@ -24,8 +24,9 @@ printTerm ctx t@(TermSucc t1)    =
 printTerm ctx t@(TermPred t1)    =
   let n = foldNat t
   in  fromMaybe ("(pred " ++ printTerm ctx t1 ++ ")") (liftM show n)
-printTerm ctx (TermIsZero t)     = "(zero? " ++ printTerm ctx t ++ ")"
+printTerm ctx (TermIsZero t1)    = "(zero? " ++ printTerm ctx t1 ++ ")"
 printTerm ctx (TermProduct ts)   = "{" ++ (concat . intersperse ", " . map (printTerm ctx)) ts ++ "}"
+printTerm ctx (TermProj i t1)    = printTerm ctx t1 ++ "." ++ show i
 printTerm ctx (TermVar n _)      = fromMaybe "<undefined var>" (getName n ctx)
 printTerm ctx (TermAbs x tyX t1) = 
   let (x', ctx') = freshVarName x ctx

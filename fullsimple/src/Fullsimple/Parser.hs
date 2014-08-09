@@ -143,9 +143,9 @@ parseProduct =
 parseProj :: Parser (Term -> Term)
 parseProj =
   do dot
-     j <- many1 digit
+     i <- many1 digit
      traceM "Parsing <proj>"
-     return $ TermProj ((read j) - 1)
+     return $ TermProj ((read i) - 1)
 
 getVarIndex :: (Monad m, Eq a) => a -> [(a,b)] -> m Int
 getVarIndex var ctx =
