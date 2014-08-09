@@ -11,9 +11,6 @@ data Term = TermUnit
           | TermSucc       Term
           | TermPred       Term
           | TermIsZero     Term
-          | TermPair       Term Term
-          | TermProj1      Term
-          | TermProj2      Term
           | TermProduct    [Term]
           | TermProj       Int Term
           | TermVar        Int Int
